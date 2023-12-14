@@ -15,30 +15,52 @@ typedef struct {
 
 void input(player *p) {
     int value;
-    scanf("%d", &value);
-    
-    if (value < 0 || value > 3 ) {
+    char buf[100];
+
+    fgets(buf, sizeof(buf), stdin);
+    if (sscanf(buf, "%d", &value) != 1) {
+        // int型でない入力の場合
+        printf("整数で入力してください(%d): ", p->cost);
         input(p);
+
+    } else if (value < HAND_CHARGE || value > HAND_KATACK ) {
+        // 想定されていない入力があった場合
+        input(p);
+
     } else if(value == HAND_CHARGE) {
+        // コストをチャージする
         p->cost += 1;
-        p->cmd = 0;
+
     } else if(value == HAND_ATACK) {
+        // コストが足りているか
         if (p->cost > 0) {
             p->cost -= 1;
-            p->cmd = 2;
         } else {
             printf("コストが足りません: ");
             input(p);
         }
+
     } else if(value == HAND_KATACK) {
+        // コストが足りているか
         if (p->cost > 2) {
             p->cost -= 3;
-            p->cmd = 3;
         } else {
             printf("コストが足りません: ");
             input(p);
         }
     }
+
+    // コマンドを決定
+    p->cmd = value;
+}
+
+void com_help() {
+    printf("HAND   | No | COST\n");
+    printf("-------|----|------\n");
+    printf("CHARGE | %-2d |  +1\n", HAND_CHARGE);
+    printf("BLOCK  | %-2d |   0\n", HAND_BLOCK);
+    printf("ATACK  | %-2d |  -1\n", HAND_ATACK);
+    printf("KATACK | %-2d |  -3\n", HAND_KATACK);
 }
 
 int main() {
@@ -54,6 +76,9 @@ int main() {
         }
     }
 
+    // コマンドのヘルプを表示
+    com_help();
+
     while (1) {
         // Player1の入力
         printf("プレイヤー1が入力してください(%d): ", p[0]->cost);
@@ -63,6 +88,7 @@ int main() {
         printf("プレイヤー2が入力してください(%d): ", p[1]->cost);
         input(p[1]);
 
+        // 勝敗のパターンの判別
         switch(p[0]->cmd | (p[1]->cmd << 2)){
             case(0x2):
             case(0x3):
