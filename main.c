@@ -25,6 +25,7 @@ void input(player *p) {
 
     } else if (value < HAND_CHARGE || value > HAND_KATACK ) {
         // 想定されていない入力があった場合
+        printf("無効な入力です: ");
         input(p);
 
     } else if(value == HAND_CHARGE) {
@@ -70,6 +71,7 @@ int main() {
     // メモリの確保
     for(int i = 0; i < 2; i++) {
         p[i] = (player *)malloc(sizeof(player));
+        p[i]->cost = 0;
         if(p[i] == NULL) {
             fprintf(stderr, "Memory allocation failed\n");
             return 1;
