@@ -5,11 +5,12 @@
 #include <string.h>     /* for memset() */
 #include <unistd.h>     /* for close() */
 #include <arpa/inet.h>  // for htonl()
-#include "ccLemon.h"
+#include "../common/ccLemon.h"
 
 #define RCVBUFSIZE 32   /* Size of receive buffer */
 
 void DieWithError(char *errorMessage);  /* Error handling function */
+
 
 int main(int argc, char *argv[])
 {
@@ -64,17 +65,19 @@ int main(int argc, char *argv[])
         InputHand(&me);
 
         // 整数をネットワークバイトオーダーに変換
-        SendCommand = htonl(me.cmd);
-        printf("SendCommand: %d\n", SendCommand);
+        printf("SendCommand: %d\n", me.cmd);
 
         /* Send the string to the server */
-        if (send(sock, &SendCommand, sizeof(SendCommand), 0) != sizeof(SendCommand))
+        if (send(sock, &me, sizeof(me), 0) != sizeof(me))
             DieWithError("send() sent a different number of bytes than expected");
 
         /* Receive the same string back from the server */
-        if ((bytesRcvd = recv(sock, &receivedInt, sizeof(int), 0)) <= 0)
+        if ((bytesRcvd = recv(sock, &me, sizeof(me), 0)) <= 0)
             DieWithError("recv() failed or connection closed prematurely");
-        printf("Received: %d\n", ntohl(receivedInt));      /* Print the echo buffer */
+        printf("Received: %d\n", me.status);      /* Print the echo buffer */
+
+        // 通信ステータスを初期化
+        me.status = 0;
     }
 
     close(sock);

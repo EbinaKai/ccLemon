@@ -1,2 +1,2 @@
-TCPEchoServer-Thread: TCPEchoServer-Thread.c AcceptTCPConnection.c DieWithError.c CreateTCPServerSocket.c HandleTCPClient.c
-	gcc -o TCPEchoServer-Thread TCPEchoServer-Thread.c AcceptTCPConnection.c DieWithError.c CreateTCPServerSocket.c HandleTCPClient.c -l pthread
+TCPEchoServer-Thread: TCPEchoServer-Thread.c AcceptTCPConnection.c ../common/DieWithError.c CreateTCPServerSocket.c HandleTCPClient.c ../common/ccLemon.c
+	gcc -o TCPEchoServer-Thread TCPEchoServer-Thread.c AcceptTCPConnection.c ../common/DieWithError.c CreateTCPServerSocket.c HandleTCPClient.c ../common/ccLemon.c -I../common -lpthread

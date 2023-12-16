@@ -1,2 +1,2 @@
-TCPEchoClient: TCPEchoClient.c DieWithError.c 
-	gcc -o TCPEchoClient TCPEchoClient.c DieWithError.c ccLemon.c
+TCPEchoClient: TCPEchoClient.c ../common/DieWithError.c ../common/ccLemon.c
+	gcc -o TCPEchoClient TCPEchoClient.c ../common/DieWithError.c ../common/ccLemon.c
