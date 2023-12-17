@@ -4,8 +4,10 @@
 #include <stdlib.h>     /* for atoi() and exit() */
 #include <string.h>     /* for memset() */
 #include <unistd.h>     /* for close() */
+#include <pthread.h>        /* for POSIX threads */
+#include "GameRoom.h"
 
 void DieWithError(char *errorMessage);  /* Error handling function */
-void HandleTCPClient(int clntSocket);   /* TCP client handling function */
+void HandleTCPClient(int clntSocket, pthread_t threadID, Room *roomList);   /* TCP client handling function */
 int CreateTCPServerSocket(unsigned short port); /* Create TCP server socket */
 int AcceptTCPConnection(int servSock);  /* Accept TCP connection request */

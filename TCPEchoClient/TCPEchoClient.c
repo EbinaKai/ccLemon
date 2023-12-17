@@ -50,21 +50,51 @@ int main(int argc, char *argv[])
     PlayerInit(&me);
 
     // コマンドヘルプの表示
-    com_help();
+    CommandHelp();
     
     printf("ルームを作成しますか？(y/n): ");
     InputMode(&me);
-    if (me.status == STATUS_REQ_ROOM_JOIN) {
-        printf("ルーム番号を入力してください: ");
-        InputRoomId(&me);
-    }
 
     while (1) {
 
-        // コマンドの入力
-        if (me.status == STATUS_RES_GAME_UNDECIDED) {
-            printf("入力してください(%d): ", me.cost);
-            InputHand(&me);
+        // ステータスによってコンソールに表示するメッセージを変更
+        switch(me.status) {
+            case STATUS_RES_ROOM_CREATED:
+                printf("ルームを作成しました。ルーム番号は%dです。\n", me.roomID);
+                break;
+            case STATUS_RES_ROOM_JOINNED:
+                printf("ルームに参加しました。\n");
+                break;
+            case STATUS_RES_GAME_UNDECIDED: 
+                printf("YOU        ENEMY\n");
+                printf("%-7s vs %-7s\n", getHandName(me.cmd), getHandName(me.enemyCmd));
+            default:
+                break;
+        }
+
+        // ステータスによって処理を分岐
+        switch(me.status) {
+            case STATUS_REQ_ROOM_JOIN:
+                printf("ルーム番号を入力してください: ");
+                InputRoomId(&me);
+                break;
+            case STATUS_RES_ROOM_NOT_FOUND:
+                printf("ルームが見つかりませんでした。ルーム番号を入力してください: ");
+                InputRoomId(&me);
+                break;
+            case STATUS_RES_ROOM_IS_FULL:
+                printf("ルームが満員です。ルーム番号を入力してください: ");
+                InputRoomId(&me);
+                break;
+
+            case STATUS_RES_ROOM_CREATED:
+            case STATUS_RES_ROOM_JOINNED:
+            case STATUS_RES_GAME_UNDECIDED:
+                printf("コマンドを入力してください(%d): ", me.cost);
+                InputHand(&me);
+                break;
+            default:
+                break;
         }
 
         /* Send the string to the server */
@@ -82,6 +112,16 @@ int main(int argc, char *argv[])
         }
     }
 
+    // ソケットのクローズ
     close(sock);
+
+    // 結果の表示
+    if (me.status == STATUS_RES_GAME_WIN) {
+        printf("あなたの勝ちです！\n");
+    } else if (me.status == STATUS_RES_GAME_LOSE) {
+        printf("あなたの負けです...\n");
+    }
+
+    // 終了
     exit(0);
 }

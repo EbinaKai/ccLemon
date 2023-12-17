@@ -4,7 +4,22 @@ void PlayerInit(player *p) {
     p->cost = 0;
     p->cmd = HAND_CHARGE;
     p->status = STATUS_REQ_ROOM_CREATE;
-    p->room = -1;
+    p->roomID = -1;
+}
+
+const char* getHandName(GameHand hand) {
+    switch (hand) {
+        case HAND_CHARGE:
+            return "CHARGE";
+        case HAND_BLOCK:
+            return "BLOCK";
+        case HAND_ATTACK:
+            return "ATTACK";
+        case HAND_KATTACK:
+            return "KATACK";
+        default:
+            return "Unknown Hand";
+    }
 }
 
 void InputHand(player *p) {
@@ -17,7 +32,7 @@ void InputHand(player *p) {
         printf("整数で入力してください(%d): ", p->cost);
         InputHand(p);
 
-    } else if (value < HAND_CHARGE || value > HAND_KATACK ) {
+    } else if (value < HAND_CHARGE || value > HAND_KATTACK ) {
         // 想定されていない入力があった場合
         printf("無効な入力です: ");
         InputHand(p);
@@ -25,20 +40,26 @@ void InputHand(player *p) {
     } else if(value == HAND_CHARGE) {
         // コストをチャージする
         p->cost += 1;
+        p->cmd = value;
 
-    } else if(value == HAND_ATACK) {
+    } else if(value == HAND_BLOCK) {
+        p->cmd = value;
+
+    } else if(value == HAND_ATTACK) {
         // コストが足りているか
         if (p->cost > 0) {
             p->cost -= 1;
+            p->cmd = value;
         } else {
             printf("コストが足りません: ");
             InputHand(p);
         }
 
-    } else if(value == HAND_KATACK) {
+    } else if(value == HAND_KATTACK) {
         // コストが足りているか
         if (p->cost > 2) {
             p->cost -= 3;
+            p->cmd = value;
         } else {
             printf("コストが足りません: ");
             InputHand(p);
@@ -46,17 +67,16 @@ void InputHand(player *p) {
     }
 
     // コマンドを決定
-    p->cmd = value;
     p->status = STATUS_REQ_SEND_HAND;
 }
 
-void com_help() {
-    printf("HAND   | No | COST\n");
-    printf("-------|----|------\n");
-    printf("CHARGE | %-2d |  +1\n", HAND_CHARGE);
-    printf("BLOCK  | %-2d |   0\n", HAND_BLOCK);
-    printf("ATACK  | %-2d |  -1\n", HAND_ATACK);
-    printf("KATACK | %-2d |  -3\n", HAND_KATACK);
+void CommandHelp() {
+    printf("HAND   | COMMAND | COST\n");
+    printf("-------|---------|------\n");
+    printf("%6s | %7d |  +1\n", getHandName(HAND_CHARGE), HAND_CHARGE);
+    printf("%6s | %7d |   0\n", getHandName(HAND_BLOCK), HAND_BLOCK);
+    printf("%6s | %7d |  -1\n", getHandName(HAND_ATTACK), HAND_ATTACK);
+    printf("%6s | %7d |  -3\n", getHandName(HAND_KATTACK), HAND_KATTACK);
 }
 
 void InputMode(player *p) {
@@ -75,7 +95,7 @@ void InputMode(player *p) {
 void InputRoomId(player *p) {
     char buf[100];
     fgets(buf, sizeof(buf), stdin);
-    if (sscanf(buf, "%d", &p->room) != 1) {
+    if (sscanf(buf, "%d", &p->roomID) != 1) {
         // int型でない入力の場合
         printf("整数で入力してください: ");
         InputRoomId(p);
