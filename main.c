@@ -55,7 +55,7 @@ void input(player *p) {
     p->cmd = value;
 }
 
-void com_help() {
+void CommandHelp() {
     printf("HAND   | No | COST\n");
     printf("-------|----|------\n");
     printf("CHARGE | %-2d |  +1\n", HAND_CHARGE);
@@ -79,7 +79,7 @@ int main() {
     }
 
     // コマンドのヘルプを表示
-    com_help();
+    CommandHelp();
 
     while (1) {
         // Player1の入力
