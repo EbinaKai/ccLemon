@@ -56,6 +56,10 @@ int main(int argc, char *argv[])
 
         // ステータスによってコンソールに表示するメッセージを変更
         switch(me.status) {
+            case STATUS_REQ_GAME_HELP:
+                CommandHelp();
+                me.status = STATUS_RES_GAME_UNDECIDED;
+                break;
             case STATUS_RES_ROOM_NOT_FOUND:
                 printf("ルームが見つかりませんでした。");
                 break;
@@ -68,12 +72,17 @@ int main(int argc, char *argv[])
             case STATUS_RES_ROOM_JOINNED:
                 printf("ルームに参加しました。\n");
                 break;
+            case STATUS_RES_GAME_TIMEOUT:
+                printf("対戦相手がタイム・アウトしました。\n");
+                cancelCommand(&me);
+                break;
             case STATUS_RES_GAME_UNDECIDED: 
                 printf("YOU        ENEMY\n");
                 printf("%-7s vs %-7s\n", getHandName(me.cmd), getHandName(me.enemyCmd));
                 break;
             case STATUS_RES_ROOM_IS_NOT_FULL:
                 printf("対戦相手の参加を待っています。\n");
+                me.cost = 0;    // コストの初期化
                 break;
             default:
                 break;
@@ -96,9 +105,15 @@ int main(int argc, char *argv[])
             case STATUS_RES_ROOM_CREATED:
             case STATUS_RES_ROOM_JOINNED:
             case STATUS_RES_ROOM_IS_NOT_FULL:
+            case STATUS_RES_GAME_TIMEOUT:
             case STATUS_RES_GAME_UNDECIDED:
                 printf("コマンドを入力してください(%d): ", me.cost);
                 InputHand(&me);
+                printf("%s\n", getStatusName(me.status));
+                if (me.status == STATUS_REQ_GAME_HELP ) {
+                    printf("コマンドのヘルプを表示します\n");
+                    continue;
+                }
                 break;
             default:
                 break;

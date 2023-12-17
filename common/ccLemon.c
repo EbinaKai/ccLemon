@@ -5,6 +5,7 @@ HandMapping handMappings[] = {
     {'b', HAND_BLOCK},
     {'a', HAND_ATTACK},
     {'k', HAND_KATTACK},
+    {'h', HAND_HELP},
     {'q', HAND_QUIT},
     {'u', HAND_UNKNOWN}  // 'u' は未知の手を表す
 };
@@ -18,8 +19,6 @@ void PlayerInit(player *p) {
 
 char* getHandName(GameHand hand) {
     switch (hand) {
-        case HAND_QUIT:
-            return "QUIT";
         case HAND_CHARGE:
             return "CHARGE";
         case HAND_BLOCK:
@@ -28,8 +27,35 @@ char* getHandName(GameHand hand) {
             return "ATTACK";
         case HAND_KATTACK:
             return "KATACK";
+        case HAND_HELP:
+            return "HELP";
+        case HAND_QUIT:
+            return "QUIT";
         default:    // ここは使われない
             return "Unknown Hand";
+    }
+}
+
+// ステータス名の取得
+char* getStatusName(GameStatus status) {
+    switch(status) {
+        case STATUS_INIT: return "STATUS_INIT";
+        case STATUS_REQ_ROOM_CREATE: return "STATUS_REQ_ROOM_CREATE";
+        case STATUS_REQ_ROOM_JOIN: return "STATUS_REQ_ROOM_JOIN";
+        case STATUS_REQ_SEND_HAND: return "STATUS_REQ_SEND_HAND";
+        case STATUS_REQ_GAME_HELP: return "STATUS_REQ_GAME_HELP";
+        case STATUS_REQ_GAME_QUIT: return "STATUS_REQ_GAME_QUIT";
+        case STATUS_RES_ROOM_CREATED: return "STATUS_RES_ROOM_CREATED";
+        case STATUS_RES_ROOM_JOINNED: return "STATUS_RES_ROOM_JOINNED";
+        case STATUS_RES_ROOM_NOT_FOUND: return "STATUS_RES_ROOM_NOT_FOUND";
+        case STATUS_RES_ROOM_IS_FULL: return "STATUS_RES_ROOM_IS_FULL";
+        case STATUS_RES_ROOM_IS_NOT_FULL: return "STATUS_RES_ROOM_IS_NOT_FULL";
+        case STATUS_RES_GAME_TIMEOUT: return "STATUS_RES_GAME_TIMEOUT";
+        case STATUS_RES_GAME_UNDECIDED: return "STATUS_RES_GAME_UNDECIDED";
+        case STATUS_RES_GAME_WIN: return "STATUS_RES_GAME_WIN";
+        case STATUS_RES_GAME_LOSE: return "STATUS_RES_GAME_LOSE";
+        case STATUS_RES_GAME_QUIT: return "STATUS_RES_GAME_QUIT";
+        default: return "UNKNOWN";
     }
 }
 
@@ -62,26 +88,14 @@ void InputHand(player *p) {
     fgets(buf, sizeof(buf), stdin);
     if (sscanf(buf, "%c", &code) != 1) {
         // char型でない入力の場合
-        printf("コードで入力してください[%c/%c/%c/%c/%c](%d): ", 
-                                    getHandChar(HAND_CHARGE), 
-                                    getHandChar(HAND_BLOCK), 
-                                    getHandChar(HAND_ATTACK), 
-                                    getHandChar(HAND_KATTACK), 
-                                    getHandChar(HAND_QUIT),
-                                    p->cost);
+        printf("指定コードで入力してください[h](%d): ", p->cost);
         InputHand(p);
         
     } else {
         hand = getHandCode(code);
-        if (hand < HAND_CHARGE || hand > HAND_QUIT ) {
+        if (hand < HAND_CHARGE || hand >= HAND_UNKNOWN ) {
             // 想定されていない入力があった場合
-            printf("無効な入力です[%c/%c/%c/%c/%c](%d): ", 
-                                    getHandChar(HAND_CHARGE), 
-                                    getHandChar(HAND_BLOCK), 
-                                    getHandChar(HAND_ATTACK), 
-                                    getHandChar(HAND_KATTACK), 
-                                    getHandChar(HAND_QUIT),
-                                    p->cost);
+            printf("無効な入力です[h](%d): ", p->cost);
             InputHand(p);
 
         } else {
@@ -93,6 +107,7 @@ void InputHand(player *p) {
                     break;
 
                 case HAND_BLOCK:
+                case HAND_HELP:
                 case HAND_QUIT:
                     p->cmd = hand;
                     break;
@@ -126,20 +141,39 @@ void InputHand(player *p) {
     }
     
     // コマンドを決定
-    if (p->cmd != HAND_QUIT) {
+    if (p->cmd == HAND_HELP) {
+        p->status = STATUS_REQ_GAME_HELP;
+    } else if (p->cmd != HAND_QUIT) {
         p->status = STATUS_REQ_SEND_HAND;
     } else {
         p->status = STATUS_REQ_GAME_QUIT;
     }
 }
 
+void cancelCommand(player *p) {
+    switch (p->cmd) {
+        case HAND_CHARGE:
+            p->cost -= 1;
+            break;
+        case HAND_ATTACK:
+            p->cost += 1;
+            break;
+        case HAND_KATTACK:
+            p->cost += 3;
+            break;
+        default:
+            break;
+    }
+}
+
 void CommandHelp() {
-    printf("HAND   | COMMAND | COST\n");
+    printf(" HAND  | COMMAND | COST\n");
     printf("-------|---------|------\n");
     printf("%6s | %7c |  +1\n", getHandName(HAND_CHARGE), getHandChar(HAND_CHARGE));
     printf("%6s | %7c |   0\n", getHandName(HAND_BLOCK), getHandChar(HAND_BLOCK));
     printf("%6s | %7c |  -1\n", getHandName(HAND_ATTACK), getHandChar(HAND_ATTACK));
     printf("%6s | %7c |  -3\n", getHandName(HAND_KATTACK), getHandChar(HAND_KATTACK));
+    printf("%6s | %7c |  --\n", getHandName(HAND_HELP), getHandChar(HAND_HELP));
     printf("%6s | %7c |  --\n", getHandName(HAND_QUIT), getHandChar(HAND_QUIT));
 }
 

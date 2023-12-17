@@ -11,6 +11,7 @@ typedef enum {
     HAND_KATTACK,
     // ここまでの順番を変えないでください
     
+    HAND_HELP,
     HAND_QUIT,
     HAND_UNKNOWN,
 } GameHand;
@@ -30,6 +31,7 @@ typedef enum {
     STATUS_REQ_ROOM_CREATE,
     STATUS_REQ_ROOM_JOIN,
     STATUS_REQ_SEND_HAND,
+    STATUS_REQ_GAME_HELP,
     STATUS_REQ_GAME_QUIT,
 
     // レスポンスステータス
@@ -38,6 +40,7 @@ typedef enum {
     STATUS_RES_ROOM_NOT_FOUND,
     STATUS_RES_ROOM_IS_FULL,
     STATUS_RES_ROOM_IS_NOT_FULL,
+    STATUS_RES_GAME_TIMEOUT,
     STATUS_RES_GAME_UNDECIDED,
     STATUS_RES_GAME_WIN,
     STATUS_RES_GAME_LOSE,
@@ -61,6 +64,7 @@ char getHandChar(GameHand hand);
 void InputMode(player *p);
 void InputRoomId(player *p);
 void InputHand(player *p);
+void cancelCommand(player *p);
 void CommandHelp();
 void Judge(player *p1, player *p2);
 
