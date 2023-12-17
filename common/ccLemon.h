@@ -2,19 +2,35 @@
 #define CCLEMON_H
 #include <stdio.h>
 #include <stdlib.h>
+#include <stddef.h> 
 
 typedef enum {
     HAND_CHARGE,
     HAND_BLOCK,
     HAND_ATTACK,
     HAND_KATTACK,
+    // ここまでの順番を変えないでください
+    
+    HAND_QUIT,
+    HAND_UNKNOWN,
 } GameHand;
 
+typedef struct {
+    char command;
+    GameHand hand;
+} HandMapping;
+
+extern HandMapping handMappings[];
+
 typedef enum {
+    // 初期化ステータス
+    STATUS_INIT,
+
     // リクエストステータス
     STATUS_REQ_ROOM_CREATE,
     STATUS_REQ_ROOM_JOIN,
     STATUS_REQ_SEND_HAND,
+    STATUS_REQ_GAME_QUIT,
 
     // レスポンスステータス
     STATUS_RES_ROOM_CREATED,
@@ -25,6 +41,7 @@ typedef enum {
     STATUS_RES_GAME_UNDECIDED,
     STATUS_RES_GAME_WIN,
     STATUS_RES_GAME_LOSE,
+    STATUS_RES_GAME_QUIT,
 } GameStatus;
 
 typedef struct {
@@ -37,7 +54,10 @@ typedef struct {
 } player;
 
 void PlayerInit(player *p);
-const char* getHandName(GameHand hand);
+char* getHandName(GameHand hand);
+char* getStatusName(GameStatus status);
+GameHand getHandCode(char command);
+char getHandChar(GameHand hand);
 void InputMode(player *p);
 void InputRoomId(player *p);
 void InputHand(player *p);

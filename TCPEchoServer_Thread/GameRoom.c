@@ -60,6 +60,7 @@ void deleteRoom(Room* roomList, Room* room) {
   while (current->next != NULL) {
     if (current->next == room) {
       current->next = room->next;
+      printf("room with id: %d deleted\n", room->roomID);
       free(room);
       break;
     }

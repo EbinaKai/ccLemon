@@ -8,6 +8,6 @@
 #include "GameRoom.h"
 
 void DieWithError(char *errorMessage);  /* Error handling function */
-void HandleTCPClient(int clntSocket, pthread_t threadID, Room *roomList);   /* TCP client handling function */
+void HandleTCPClient(int clntSocket, Room *roomList);   /* TCP client handling function */
 int CreateTCPServerSocket(unsigned short port); /* Create TCP server socket */
 int AcceptTCPConnection(int servSock);  /* Accept TCP connection request */

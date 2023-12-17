@@ -51,14 +51,17 @@ int main(int argc, char *argv[])
 
     // コマンドヘルプの表示
     CommandHelp();
-    
-    printf("ルームを作成しますか？(y/n): ");
-    InputMode(&me);
 
     while (1) {
 
         // ステータスによってコンソールに表示するメッセージを変更
         switch(me.status) {
+            case STATUS_RES_ROOM_NOT_FOUND:
+                printf("ルームが見つかりませんでした。");
+                break;
+            case STATUS_RES_ROOM_IS_FULL:
+                printf("ルームが満員です。");
+                break;
             case STATUS_RES_ROOM_CREATED:
                 printf("ルームを作成しました。ルーム番号は%dです。\n", me.roomID);
                 break;
@@ -78,19 +81,18 @@ int main(int argc, char *argv[])
 
         // ステータスによって処理を分岐
         switch(me.status) {
+            case STATUS_INIT:
+            case STATUS_RES_ROOM_NOT_FOUND:
+            case STATUS_RES_ROOM_IS_FULL:
+                printf("ルームを作成しますか？(y/n/q): ");
+                InputMode(&me);
+                if (me.status != STATUS_REQ_ROOM_JOIN) 
+                    break;
+            
             case STATUS_REQ_ROOM_JOIN:
                 printf("ルーム番号を入力してください: ");
                 InputRoomId(&me);
                 break;
-            case STATUS_RES_ROOM_NOT_FOUND:
-                printf("ルームが見つかりませんでした。ルーム番号を入力してください: ");
-                InputRoomId(&me);
-                break;
-            case STATUS_RES_ROOM_IS_FULL:
-                printf("ルームが満員です。ルーム番号を入力してください: ");
-                InputRoomId(&me);
-                break;
-
             case STATUS_RES_ROOM_CREATED:
             case STATUS_RES_ROOM_JOINNED:
             case STATUS_RES_ROOM_IS_NOT_FULL:
@@ -111,7 +113,7 @@ int main(int argc, char *argv[])
             DieWithError("recv() failed or connection closed prematurely");
 
         // ゲームの終了判定
-        if (me.status == STATUS_RES_GAME_LOSE || me.status == STATUS_RES_GAME_WIN) {
+        if (me.status == STATUS_RES_GAME_LOSE || me.status == STATUS_RES_GAME_WIN || me.status == STATUS_RES_GAME_QUIT) {
             break;
         }
     }
@@ -124,6 +126,8 @@ int main(int argc, char *argv[])
         printf("あなたの勝ちです！\n");
     } else if (me.status == STATUS_RES_GAME_LOSE) {
         printf("あなたの負けです...\n");
+    } else if (me.status == STATUS_RES_GAME_QUIT) {
+        printf("ゲームを終了しました。\n");
     }
 
     // 終了

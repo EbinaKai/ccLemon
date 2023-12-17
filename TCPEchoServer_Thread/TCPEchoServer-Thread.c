@@ -7,16 +7,16 @@ void *ThreadMain(void *arg);            /* Main program of a thread */
 /* Structure of arguments to pass to client thread */
 struct ThreadArgs {
     int clntSock;                  /* Socket descriptor for client */
-    pthread_t threadID;            /* Thread ID */
     Room *roomList;                /* Room list */
 };
 
 int main(int argc, char *argv[])
 {
-    int servSock;                    /* Socket descriptor for server */
-    int clntSock;                    /* Socket descriptor for client */
-    unsigned short echoServPort;     /* Server port */
-    struct ThreadArgs *threadArgs;   /* Pointer to argument structure for thread */
+    int servSock;                      /* Socket descriptor for server */
+    int clntSock;                      /* Socket descriptor for client */
+    unsigned short echoServPort;       /* Server port */
+    pthread_t threadID;                /* Thread ID */
+    struct ThreadArgs *threadArgs;     /* Pointer to argument structure for thread */
     Room* roomList = createRoomList(); /* Room list */
 
     if (argc != 2)     /* Test for correct number of arguments */
@@ -42,9 +42,8 @@ int main(int argc, char *argv[])
         threadArgs -> roomList = roomList;
 
         /* Create client thread */
-        if (pthread_create(&(threadArgs->threadID), NULL, ThreadMain, (void *) threadArgs) != 0)
+        if (pthread_create(&threadID, NULL, ThreadMain, (void *) threadArgs) != 0)
             DieWithError("pthread_create() failed");
-        printf("with thread %ld\n", (long int) threadArgs->threadID);
     }
     /* NOT REACHED */
 }
@@ -60,11 +59,10 @@ void *ThreadMain(void *threadArgs)
 
     /* Extract socket file descriptor from argument */
     clntSock = ((struct ThreadArgs *) threadArgs) -> clntSock;
-    threadID = ((struct ThreadArgs *) threadArgs) -> threadID;
     roomList = ((struct ThreadArgs *) threadArgs) -> roomList;
     free(threadArgs);              /* Deallocate memory for argument */
 
-    HandleTCPClient(clntSock, threadID, roomList);
+    HandleTCPClient(clntSock, roomList);
 
     return (NULL);
 }
