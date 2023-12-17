@@ -7,10 +7,7 @@
 #include <arpa/inet.h>  // for htonl()
 #include "../common/ccLemon.h"
 
-#define RCVBUFSIZE 32   /* Size of receive buffer */
-
 void DieWithError(char *errorMessage);  /* Error handling function */
-
 
 int main(int argc, char *argv[])
 {
@@ -18,9 +15,6 @@ int main(int argc, char *argv[])
     struct sockaddr_in echoServAddr; /* Echo server address */
     unsigned short echoServPort;     /* Echo server port */
     char *servIP;                    /* Server IP address (dotted quad) */
-    char echoBuffer[RCVBUFSIZE];     /* Buffer for echo string */
-    int bytesRcvd, totalBytesRcvd;   /* Bytes read in single recv() 
-                                        and total bytes read */
     int receivedInt, SendCommand;
     player me;
 
@@ -48,36 +42,44 @@ int main(int argc, char *argv[])
     echoServAddr.sin_addr.s_addr = inet_addr(servIP);   /* Server IP address */
     echoServAddr.sin_port        = htons(echoServPort); /* Server port */
 
-
     /* Establish the connection to the echo server */
     if (connect(sock, (struct sockaddr *) &echoServAddr, sizeof(echoServAddr)) < 0)
         DieWithError("connect() failed");
 
     // プレイヤーの初期化
-    me.cost = 0;
+    PlayerInit(&me);
 
     // コマンドヘルプの表示
     com_help();
+    
+    printf("ルームを作成しますか？(y/n): ");
+    InputMode(&me);
+    if (me.status == STATUS_REQ_ROOM_JOIN) {
+        printf("ルーム番号を入力してください: ");
+        InputRoomId(&me);
+    }
 
     while (1) {
-        char echoString[RCVBUFSIZE];  // ユーザーからの入力を保存するためのバッファ
-        printf("入力してください(%d): ", me.cost);
-        InputHand(&me);
 
-        // 整数をネットワークバイトオーダーに変換
-        printf("SendCommand: %d\n", me.cmd);
+        // コマンドの入力
+        if (me.status == STATUS_RES_GAME_UNDECIDED) {
+            printf("入力してください(%d): ", me.cost);
+            InputHand(&me);
+        }
 
         /* Send the string to the server */
         if (send(sock, &me, sizeof(me), 0) != sizeof(me))
             DieWithError("send() sent a different number of bytes than expected");
 
         /* Receive the same string back from the server */
-        if ((bytesRcvd = recv(sock, &me, sizeof(me), 0)) <= 0)
+        if ((recv(sock, &me, sizeof(me), 0)) <= 0)
             DieWithError("recv() failed or connection closed prematurely");
         printf("Received: %d\n", me.status);      /* Print the echo buffer */
 
-        // 通信ステータスを初期化
-        me.status = 0;
+        // ゲームの終了判定
+        if (me.status == STATUS_RES_GAME_LOSE || me.status == STATUS_RES_GAME_WIN) {
+            break;
+        }
     }
 
     close(sock);
