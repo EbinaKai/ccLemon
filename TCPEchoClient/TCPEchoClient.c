@@ -68,6 +68,10 @@ int main(int argc, char *argv[])
             case STATUS_RES_GAME_UNDECIDED: 
                 printf("YOU        ENEMY\n");
                 printf("%-7s vs %-7s\n", getHandName(me.cmd), getHandName(me.enemyCmd));
+                break;
+            case STATUS_RES_ROOM_IS_NOT_FULL:
+                printf("対戦相手の参加を待っています。\n");
+                break;
             default:
                 break;
         }
@@ -89,6 +93,7 @@ int main(int argc, char *argv[])
 
             case STATUS_RES_ROOM_CREATED:
             case STATUS_RES_ROOM_JOINNED:
+            case STATUS_RES_ROOM_IS_NOT_FULL:
             case STATUS_RES_GAME_UNDECIDED:
                 printf("コマンドを入力してください(%d): ", me.cost);
                 InputHand(&me);
@@ -104,7 +109,6 @@ int main(int argc, char *argv[])
         /* Receive the same string back from the server */
         if ((recv(sock, &me, sizeof(me), 0)) <= 0)
             DieWithError("recv() failed or connection closed prematurely");
-        printf("Received: %d\n", me.status);      /* Print the echo buffer */
 
         // ゲームの終了判定
         if (me.status == STATUS_RES_GAME_LOSE || me.status == STATUS_RES_GAME_WIN) {

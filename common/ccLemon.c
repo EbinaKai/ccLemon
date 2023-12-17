@@ -110,18 +110,15 @@ void Judge(player *p1, player *p2) {
         case(0x7):
         case(0xb):
             p1->status = STATUS_RES_GAME_WIN;
-            p2->status = STATUS_RES_GAME_LOSE;
             break;
         case(0x8):
         case(0xc):
         case(0xd):
         case(0xe):
             p1->status = STATUS_RES_GAME_LOSE;
-            p2->status = STATUS_RES_GAME_WIN;
             break;
         default: 
             p1->status = STATUS_RES_GAME_UNDECIDED;
-            p2->status = STATUS_RES_GAME_UNDECIDED;
             break;
     }
 }
