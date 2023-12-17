@@ -1,8 +1,9 @@
 #include <stdio.h>      /* for printf() and fprintf() */
 #include <sys/socket.h> /* for recv() and send() */
 #include <unistd.h>     /* for close() */
-#include <netinet/in.h>  // for ntohl()
-#include <pthread.h>        /* for POSIX threads */
+#include <netinet/in.h> // for ntohl()
+#include <pthread.h>    /* for POSIX threads */
+#include <unistd.h>     // usleep関数用
 #include "../common/ccLemon.h"
 #include "GameRoom.h"
 
@@ -14,6 +15,7 @@ void HandleTCPClient(int clntSocket, Room *roomList)
     int receivedInt;
     player p, enemy;
     Room *room;
+    time_t startTime, currentTime;
 
     /* Receive message from client */
     if ((recvMsgSize = recv(clntSocket, &p, sizeof(player), 0)) < 0)
@@ -71,7 +73,23 @@ void HandleTCPClient(int clntSocket, Room *roomList)
                     printf("waiting for opponent's hand\n");
                     room->waitingFlag = 1;
                     room->player1 = &p;
-                    while (room->waitingFlag);  // 相手のコマンドが確定するまで待機
+
+                    // 相手のコマンドが確定するまでor30秒経過まで待機
+                    startTime = time(NULL);
+                    while (room->waitingFlag) {
+                        currentTime = time(NULL);
+                        if (difftime(currentTime, startTime) >= 30) { // 30秒経過をチェック
+                            printf("time out\n");
+                            room->waitingFlag = 0;
+                            p.status = STATUS_RES_GAME_TIMEOUT;
+                            break; // 30秒経過したらループを抜ける
+                        }
+
+                        usleep(50 * 1000);  // 0.05秒（50000マイクロ秒）スリープ
+                    }
+
+                    if (p.status == STATUS_RES_GAME_TIMEOUT)
+                        break;
                     enemy.cmd = room->player2->cmd;
                 } 
                 else {  // 相手のコマンド待ちでない場合

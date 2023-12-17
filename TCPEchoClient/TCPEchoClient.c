@@ -109,7 +109,6 @@ int main(int argc, char *argv[])
             case STATUS_RES_GAME_UNDECIDED:
                 printf("コマンドを入力してください(%d): ", me.cost);
                 InputHand(&me);
-                printf("%s\n", getStatusName(me.status));
                 if (me.status == STATUS_REQ_GAME_HELP ) {
                     printf("コマンドのヘルプを表示します\n");
                     continue;
