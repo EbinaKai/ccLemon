@@ -77,6 +77,8 @@ int main(int argc, char *argv[])
                 cancelCommand(&me);
                 break;
             case STATUS_RES_GAME_UNDECIDED: 
+            case STATUS_RES_GAME_WIN: 
+            case STATUS_RES_GAME_LOSE: 
                 printf("YOU        ENEMY\n");
                 printf("%-7s vs %-7s\n", getHandName(me.cmd), getHandName(me.enemyCmd));
                 break;
@@ -118,6 +120,14 @@ int main(int argc, char *argv[])
                 break;
         }
 
+        // ゲームの終了判定
+        if (me.status == STATUS_RES_GAME_LOSE || me.status == STATUS_RES_GAME_WIN || me.status == STATUS_RES_GAME_QUIT) {
+            break;
+        }
+
+        // 送信ステータスをデバッグ
+        // printf("%s\n", getStatusName(me.status));
+
         /* Send the string to the server */
         if (send(sock, &me, sizeof(me), 0) != sizeof(me))
             DieWithError("send() sent a different number of bytes than expected");
@@ -125,11 +135,6 @@ int main(int argc, char *argv[])
         /* Receive the same string back from the server */
         if ((recv(sock, &me, sizeof(me), 0)) <= 0)
             DieWithError("recv() failed or connection closed prematurely");
-
-        // ゲームの終了判定
-        if (me.status == STATUS_RES_GAME_LOSE || me.status == STATUS_RES_GAME_WIN || me.status == STATUS_RES_GAME_QUIT) {
-            break;
-        }
     }
 
     // ソケットのクローズ

@@ -22,7 +22,7 @@ Room* createRoomList();
 int generateRoomID(Room *roomList);
 Room *createRoom(Room *roomList);
 Room *getRoom(Room *roomList, int id);
-void deleteRoom(Room *roomList, Room* room);
+void deleteRoom(Room *roomList, int roomID);
 void drawRoom(Room* roomList);
 
 #endif // GAMEROOM_H

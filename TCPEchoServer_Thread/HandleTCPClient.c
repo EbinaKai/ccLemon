@@ -3,7 +3,6 @@
 #include <unistd.h>     /* for close() */
 #include <netinet/in.h> // for ntohl()
 #include <pthread.h>    /* for POSIX threads */
-#include <unistd.h>     // usleep関数用
 #include "../common/ccLemon.h"
 #include "GameRoom.h"
 
@@ -54,7 +53,7 @@ void HandleTCPClient(int clntSocket, Room *roomList)
                 printf("game quit\n");
                 if (p.roomID != -1) {
                     room = getRoom(roomList, p.roomID);
-                    deleteRoom(roomList, room);
+                    deleteRoom(roomList, room->roomID);
                 }
                 p.status = STATUS_RES_GAME_QUIT;
                 break;
@@ -84,15 +83,16 @@ void HandleTCPClient(int clntSocket, Room *roomList)
                             p.status = STATUS_RES_GAME_TIMEOUT;
                             break; // 30秒経過したらループを抜ける
                         }
-
-                        usleep(50 * 1000);  // 0.05秒（50000マイクロ秒）スリープ
                     }
 
                     if (p.status == STATUS_RES_GAME_TIMEOUT)
                         break;
+                    while (room->waitingFlag);
+                    printf("break waiting loop");
                     enemy.cmd = room->player2->cmd;
                 } 
                 else {  // 相手のコマンド待ちでない場合
+                    printf("skip waiting\n");
                     room->player2 = &p;
                     room->waitingFlag = 0;
                     enemy.cmd = room->player1->cmd;
@@ -102,12 +102,14 @@ void HandleTCPClient(int clntSocket, Room *roomList)
                 p.enemyCmd = enemy.cmd;
 
                 if (p.status == STATUS_RES_GAME_WIN) // 勝利した場合はルームを削除
-                    deleteRoom(roomList, room);
+                    deleteRoom(roomList, room->roomID);
                 break;  
             
             default:
                 break;
         }
+
+        printf("%s\n", getStatusName(p.status));
 
         /* Echo message back to client */
         if (send(clntSocket, &p, recvMsgSize, 0) != recvMsgSize)

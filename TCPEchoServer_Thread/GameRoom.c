@@ -55,17 +55,26 @@ Room *getRoom(Room* roomList, int id) {
 }
 
 // ルームを削除する関数
-void deleteRoom(Room* roomList, Room* room) {
+void deleteRoom(Room* roomList, int roomID) {
   Room* current = roomList;
-  while (current->next != NULL) {
-    if (current->next == room) {
-      current->next = room->next;
-      printf("room with id: %d deleted\n", room->roomID);
-      free(room);
-      break;
-    }
+  Room* previous = NULL;
+    // 対象のルームを検索
+  while (current != NULL && current->roomID != roomID) {
+    previous = current;
     current = current->next;
   }
+    // ルームが見つからない場合
+  if (current == NULL) {
+    printf("Room with id: %d not found.\n", roomID);
+    return;
+  }
+
+  previous->next = current->next;
+
+  // ルームのリソースを解放
+  printf("Room with id: %d deleted.\n", roomID);
+  free(current);
+
 }
 
 void drawRoom(Room* roomList) {
