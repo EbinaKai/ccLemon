@@ -51,7 +51,7 @@ Room *getRoom(Room* roomList, int id) {
     }
     current = current->next;
   }
-  return roomList;
+  return NULL;
 }
 
 // ルームを削除する関数

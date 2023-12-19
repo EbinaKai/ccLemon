@@ -61,6 +61,13 @@ void HandleTCPClient(int clntSocket, Room *roomList)
             case STATUS_REQ_SEND_HAND:  // コマンドの処理
                 printf("received hand: %d\n", p.cmd);
                 room = getRoom(roomList, p.roomID);
+
+                if (room==NULL)
+                {
+                    p.status = STATUS_RES_ROOM_NOT_FOUND;
+                    break;
+                }
+                
                 
                 if (room->isRoomFull == 0) {     // ルームが満員でない場合
                     printf("room is not full\n");
@@ -77,11 +84,11 @@ void HandleTCPClient(int clntSocket, Room *roomList)
                     startTime = time(NULL);
                     while (room->waitingFlag) {
                         currentTime = time(NULL);
-                        if (difftime(currentTime, startTime) >= 30) { // 30秒経過をチェック
+                        if (difftime(currentTime, startTime) >= 5) { // 5秒経過をチェック
                             printf("time out\n");
                             room->waitingFlag = 0;
                             p.status = STATUS_RES_GAME_TIMEOUT;
-                            break; // 30秒経過したらループを抜ける
+                            break; // 5秒経過したらループを抜ける
                         }
                     }
 
