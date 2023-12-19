@@ -34,7 +34,7 @@ void HandleTCPClient(int clntSocket, Room *roomList)
             case STATUS_REQ_ROOM_JOIN:  // ルームへの参加処理
                 room = getRoom(roomList, p.roomID);
 
-                if (room->roomID == -1) {   // ルームが存在しない場合
+                if (room == NULL) {   // ルームが存在しない場合
                     printf("room not found\n");
                     p.status = STATUS_RES_ROOM_NOT_FOUND;
                 } 
