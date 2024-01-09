@@ -3,6 +3,7 @@
 #include <arpa/inet.h>  /* for sockaddr_in and inet_ntoa() */
 
 void DieWithError(char *errorMessage);  /* Error handling function */
+void logger(const char *format, ...);
 
 int AcceptTCPConnection(int servSock)
 {
@@ -20,7 +21,7 @@ int AcceptTCPConnection(int servSock)
     
     /* clntSock is connected to a client! */
     
-    printf("Handling client %s\n", inet_ntoa(echoClntAddr.sin_addr));
+    logger("Handling client %s", inet_ntoa(echoClntAddr.sin_addr));
 
     return clntSock;
 }

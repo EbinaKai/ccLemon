@@ -1,5 +1,7 @@
 #include "GameRoom.h"
 
+void logger(const char *format, ...);
+
 // ルームリストを作成
 Room* createRoomList() {
   Room* roomList = (Room*)malloc(sizeof(Room));
@@ -46,7 +48,7 @@ Room *getRoom(Room* roomList, int id) {
   Room* current = roomList;
   while (current != NULL) {
     if (current->roomID == id) {
-      printf("found room with id: %d\n", id);
+      logger("found room with id: %d", id);
       return current;
     }
     current = current->next;
@@ -65,14 +67,14 @@ void deleteRoom(Room* roomList, int roomID) {
   }
     // ルームが見つからない場合
   if (current == NULL) {
-    printf("Room with id: %d not found.\n", roomID);
+    logger("Room with id: %d not found.", roomID);
     return;
   }
 
   previous->next = current->next;
 
   // ルームのリソースを解放
-  printf("Room with id: %d deleted.\n", roomID);
+  logger("Room with id: %d deleted.", roomID);
   free(current);
 
 }
@@ -80,7 +82,7 @@ void deleteRoom(Room* roomList, int roomID) {
 void drawRoom(Room* roomList) {
   Room* current = roomList;
   while (current != NULL) {
-    printf("roomID: %d\n", current->roomID);
+    logger("roomID: %d", current->roomID);
     current = current->next;
   }
 }
